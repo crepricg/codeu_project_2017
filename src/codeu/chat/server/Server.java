@@ -30,6 +30,7 @@ import codeu.chat.common.Message;
 import codeu.chat.common.NetworkCode;
 import codeu.chat.common.Relay;
 import codeu.chat.common.Secret;
+import codeu.chat.common.ServerInfo;
 import codeu.chat.common.User;
 import codeu.chat.util.Logger;
 import codeu.chat.util.Serializers;
@@ -39,6 +40,8 @@ import codeu.chat.util.Uuid;
 import codeu.chat.util.connections.Connection;
 
 public final class Server {
+
+  private static final ServerInfo info = new ServerInfo();
 
   private static final Logger.Log LOG = Logger.newLog(Server.class);
 
@@ -240,6 +243,11 @@ public final class Server {
 
       Serializers.INTEGER.write(out, NetworkCode.GET_MESSAGES_BY_RANGE_RESPONSE);
       Serializers.collection(Message.SERIALIZER).write(out, messages);
+
+    } else if (type == NetworkCode.SERVER_INFO_REQUEST) {
+
+      Serializers.INTEGER.write(out, NetworkCode.SERVER_INFO_RESPONSE);
+      Uuid.SERIALIZER.write(out, info.version);
 
     } else {
 

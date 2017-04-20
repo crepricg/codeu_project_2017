@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Stack;
 
+import codeu.chat.common.ServerInfo;
 import codeu.chat.client.core.Context;
 import codeu.chat.client.core.ConversationContext;
 import codeu.chat.client.core.MessageContext;
@@ -109,6 +110,21 @@ public final class Chat {
         System.out.println("    Sign in as the user with the given name.");
         System.out.println("  exit");
         System.out.println("    Exit the program.");
+      }
+    });
+
+    panel.register("info", new Panel.Command() {
+      @Override
+      public void invoke(Scanner args) {
+        final ServerInfo info = context.getInfo();
+        if (info == null) {
+          // Communicate error to user - the server did not send us a valid
+          // info object.
+          System.out.println("No info nono. I am a server, not a number!");
+        } else {
+          // Print the server info to the user in a pretty way
+          System.out.format("Server Info: %s\n", info.version);
+        }
       }
     });
 

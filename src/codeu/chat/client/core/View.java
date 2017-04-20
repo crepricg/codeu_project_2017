@@ -23,6 +23,7 @@ import codeu.chat.common.ConversationSummary;
 import codeu.chat.common.LogicalView;
 import codeu.chat.common.Message;
 import codeu.chat.common.NetworkCode;
+import codeu.chat.common.ServerInfo;
 import codeu.chat.common.User;
 import codeu.chat.util.Logger;
 import codeu.chat.util.Serializers;
@@ -45,6 +46,26 @@ final class View implements BasicView, LogicalView{
   public View(ConnectionSource source) {
     this.source = source;
   }
+
+  public ServerInfo getInfo() {
+    try (final Connection connection = this.source.connect()) {
+      Serializers.INTEGER.write(connection.out(), NetworkCode.SERVER_INFO_REQUEST);
+      if (Serializers.INTEGER.read(connection.in()) == NetworkCode.SERVER_INFO_RESPONSE) {
+        final Uuid version = Uuid.SERIALIZER.read(connection.in());
+        return new ServerInfo(version);
+      } else {
+        // Communicate this error - the server did not respond with the type of
+        // response we expected.
+        LOG.error("The server did not respond with the type of response we expected.");
+      }
+    } catch (Exception ex) {
+      // Communicate this error - something went wrong with the connection.
+        LOG.error(ex, "Something went wrong with the connection.");
+    }
+    // If we get here it means something went wrong and null should be returned
+    return null;
+  }
+
 
   @Override
   public Collection<User> getUsers(Collection<Uuid> ids) {
